@@ -651,20 +651,23 @@ function updateGuiltCleanerPreview(threshold) {
   document.getElementById("guilt-qualify-count").textContent  = qualifying.length;
   document.getElementById("guilt-threshold-label").textContent = threshold;
 
-  // Top 3 domains by frequency
-  const domainCounts = {};
+  // Top 3 categories by frequency
+  const catCounts = {};
   for (const c of qualifying) {
-    domainCounts[c.domain] = (domainCounts[c.domain] || 0) + 1;
+    const cat = categorizeDomain(c.domain);
+    const key = cat.name;
+    if (!catCounts[key]) catCounts[key] = { emoji: cat.emoji, count: 0 };
+    catCounts[key].count++;
   }
 
-  const top3 = Object.entries(domainCounts)
-    .sort((a, b) => b[1] - a[1])
+  const top3 = Object.entries(catCounts)
+    .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 3)
-    .map(([domain, count]) => `${domain} (${count})`)
+    .map(([name, { emoji, count }]) => `${emoji} ${name} (${count})`)
     .join(", ");
 
   document.getElementById("guilt-top-domains").textContent =
-    top3 ? `Top domains: ${top3}` : "";
+    top3 ? `Top categories: ${top3}` : "";
 }
 
 async function closeGuiltTabs() {

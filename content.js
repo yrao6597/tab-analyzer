@@ -17,7 +17,11 @@
     const depth = getScrollDepth();
     if (depth > maxScrollDepth) {
       maxScrollDepth = depth;
-      chrome.runtime.sendMessage({ type: "SCROLL_DEPTH", depth: maxScrollDepth });
+      try {
+        chrome.runtime.sendMessage({ type: "SCROLL_DEPTH", depth: maxScrollDepth });
+      } catch {
+        // Extension was reloaded — this content script is orphaned, stop reporting
+      }
     }
   }
 

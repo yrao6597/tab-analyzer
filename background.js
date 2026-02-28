@@ -64,6 +64,19 @@ async function saveVisit(visit) {
   await chrome.storage.local.set({ visits: [...visits, visit] });
 }
 
+// ─── State persistence ─────────────────────────────────────────────────────────
+// Debounced snapshot of tabState so data survives extension reloads / SW restarts
+
+let snapshotTimer = null;
+
+function scheduleSnapshot() {
+  if (snapshotTimer) return;
+  snapshotTimer = setTimeout(async () => {
+    snapshotTimer = null;
+    await chrome.storage.local.set({ tabStateSnapshot: tabState });
+  }, 500);
+}
+
 // ─── Active session tracking ───────────────────────────────────────────────────
 
 function startActiveSession(tabId) {
@@ -98,6 +111,7 @@ chrome.tabs.onCreated.addListener((tab) => {
   const url = tab.url || tab.pendingUrl || "";
   if (isInternalUrl(url)) return;
   tabState[tab.id] = createTabEntry(url, tab.title);
+  scheduleSnapshot();
 });
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {
@@ -107,6 +121,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
   endActiveSession(tabId);
   await saveVisit(buildVisitRecord(state));
   delete tabState[tabId];
+  scheduleSnapshot();
 });
 
 // Handles both in-tab navigation (save current page, start new) and title updates
@@ -134,6 +149,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.title && tabState[tabId]) {
     tabState[tabId].title = changeInfo.title;
   }
+
+  scheduleSnapshot();
 });
 
 // ─── Focus and active tab tracking ────────────────────────────────────────────
@@ -144,6 +161,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   }
   activeTabId = tabId;
   if (windowFocused) startActiveSession(tabId);
+  scheduleSnapshot();
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
@@ -153,6 +171,7 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
   if (activeTabId !== null) {
     lostFocus ? endActiveSession(activeTabId) : startActiveSession(activeTabId);
   }
+  scheduleSnapshot();
 });
 
 // ─── Extension icon → open dashboard ──────────────────────────────────────────
@@ -201,18 +220,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// ─── Startup: re-register the currently active tab ────────────────────────────
-// Service workers reset in-memory state on wake; restore tracking for whatever
-// tab the user is currently looking at.
+// ─── Startup: restore tabState from snapshot, then re-register active tab ──────
+// On reload or SW restart: recover all previously tracked open tabs from storage,
+// finalize any sessions that were in-progress at snapshot time, drop tabs that
+// have since been closed, then resume focus tracking on the current active tab.
 
-chrome.tabs.query({ active: true, currentWindow: true }, ([tab] = []) => {
-  if (!tab) return;
+chrome.storage.local.get("tabStateSnapshot", async ({ tabStateSnapshot = {} }) => {
+  const now      = Date.now();
+  const allTabs  = await chrome.tabs.query({});
+  const openIds  = new Set(allTabs.map(t => t.id));
 
-  const url = tab.url || "";
-  if (!isInternalUrl(url) && !tabState[tab.id]) {
-    tabState[tab.id] = createTabEntry(url, tab.title);
+  for (const [key, state] of Object.entries(tabStateSnapshot)) {
+    const tabId = Number(key);
+    if (!openIds.has(tabId)) continue;  // tab was closed since last snapshot
+
+    // Finalize any session that was running when the snapshot was taken
+    if (state.currentSessionStart !== null) {
+      const duration = now - state.currentSessionStart;
+      if (duration > 1000) {
+        state.activeSessions.push({ start: state.currentSessionStart, end: now, duration_ms: duration });
+      }
+      state.currentSessionStart = null;
+    }
+
+    tabState[tabId] = state;
   }
 
-  activeTabId = tab.id;
-  if (windowFocused) startActiveSession(tab.id);
+  // Re-register the active tab for focus tracking
+  const activeTab = allTabs.find(t => t.active) || null;
+  if (activeTab) {
+    const url = activeTab.url || "";
+    if (!isInternalUrl(url) && !tabState[activeTab.id]) {
+      tabState[activeTab.id] = createTabEntry(url, activeTab.title);
+    }
+    activeTabId = activeTab.id;
+    if (windowFocused) startActiveSession(activeTab.id);
+  }
 });
