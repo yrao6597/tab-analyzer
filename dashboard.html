@@ -59,11 +59,13 @@
             <div class="info-btn" tabindex="0">
               ?
               <div class="tooltip">
+
                 <strong>Why we track this</strong>
                 <p>The gap between how long a tab <em>exists</em> vs. how long you actually <em>engage</em> with it reveals a hidden pattern: you opened it with intent, but never followed through. A high guilt tab count suggests decision fatigue — you're deferring choices by leaving tabs open "for later" instead of acting or discarding.</p>
                 <p style="margin-top:8px"><strong>Threshold:</strong> open &gt;5 min + active ratio &lt;10%</p>
               </div>
             </div>
+            <button class="btn-icon btn-guilt-clean" id="btn-guilt-clean" title="Open Guilt Tab Cleaner">🗑️</button>
           </div>
           <p class="card-sub">Tabs open a long time, barely touched</p>
           <div id="guilt-list" class="guilt-list">
@@ -156,6 +158,27 @@
           <button class="btn-ghost" id="btn-cancel">Cancel</button>
           <button class="btn-primary" id="btn-save-key">Save</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Guilt Tab Cleaner modal -->
+    <div class="modal-overlay" id="guilt-cleaner-modal" style="display:none">
+      <div class="modal guilt-cleaner-modal">
+        <div class="guilt-cleaner-header">
+          <h2>🗑️ Guilt Tab Cleaner</h2>
+          <button class="btn-icon" id="guilt-cleaner-close">✕</button>
+        </div>
+        <p class="guilt-cleaner-sub">
+          Close tabs with less than <strong><span id="guilt-threshold-label">10</span>%</strong> engagement
+        </p>
+        <input type="range" id="guilt-slider" min="1" max="50" value="10" step="1" class="guilt-slider">
+        <div class="guilt-cleaner-preview">
+          <div class="guilt-preview-count">
+            <span id="guilt-qualify-count">—</span><span class="guilt-preview-total"> tabs qualify (out of <span id="guilt-open-total">—</span> open)</span>
+          </div>
+          <div id="guilt-top-domains" class="guilt-top-domains"></div>
+        </div>
+        <button class="btn-primary btn-guilt-close-all" id="btn-close-guilt-tabs">🗑️ Close All Guilt Tabs</button>
       </div>
     </div>
 
