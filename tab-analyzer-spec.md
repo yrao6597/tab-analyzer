@@ -146,11 +146,54 @@ tab-analyzer/
 
 ---
 
+## Guilt Tab Cleaner
+
+This is the most immediately useful feature. One click closes all the tabs you've already mentally abandoned.
+
+### How It Works
+
+1. User opens the dashboard
+2. In the Guilt Tabs block, user clicks a trash can icon (🗑️) to open the Guilt Tab Cleaner UI
+3. The UI shows a slider (default: 10%) to set the engagement threshold
+4. Dashboard calls `chrome.tabs.query({})` to get all currently open tabs and cross-references each with stored `active_ratio` data
+5. Live preview updates as slider moves: count of qualifying tabs and top domains
+6. User hits **"Close All Guilt Tabs"** → `chrome.tabs.remove([...tabIds])` closes them all at once
+
+### UI for This Feature
+
+The Guilt Tabs block in the dashboard has a trash can icon (🗑️). Clicking it opens the Guilt Tab Cleaner UI:
+
+```
+┌─────────────────────────────────────────────┐
+│  🗑️  Guilt Tab Cleaner                       │
+│                                             │
+│  Close tabs with less than [10%] engagement │
+│  ←————————●——————————————→                  │
+│                                             │
+│  📊 82 tabs qualify (out of 200 open)       │
+│  🌐 Top domains: twitter.com (34), reddit   │
+│                                             │
+│  [ 🗑️ Close All Guilt Tabs ]                │
+└─────────────────────────────────────────────┘
+```
+
+### Important Notes
+
+- `chrome.tabs.remove` only works on **currently open tabs** — not historical records
+- The preview count and top domains list should update live as the slider moves
+
+### Manifest Permissions
+```json
+"permissions": ["tabs", "storage", "windows"]
+```
+
+---
+
 ## Dashboard UI Requirements
 
 - Clean, dark-mode-first design
 - Show the `active_ratio` prominently — this is the hero metric
-- "Guilt Tabs" section with a list of the worst offenders (long open, low engagement)
+- "Guilt Tabs" section with a list of the worst offenders (long open, low engagement), with a 🗑️ trash can icon that opens the Guilt Tab Cleaner UI
 - Simple bar chart for hourly open/close patterns (use Chart.js or plain canvas)
 - Claude report displayed as a card with a "Regenerate" button
 - Settings page: just an API key input field
@@ -162,21 +205,9 @@ tab-analyzer/
 1. Install extension in Chrome (unpacked)
 2. Browse normally for a few days
 3. Open dashboard, see real tab behavior data
-4. Click "Generate Weekly Report" → Claude returns a personalized cognitive patterns summary
-5. Screenshot the dashboard → post it
+4. Drag the slider → see exactly how many guilt tabs you have
+5. Click 🗑️ in the Guilt Tabs block → drag slider → hit "Close All Guilt Tabs" → watch 100+ tabs vanish
+6. Click "Generate Weekly Report" → Claude returns a personalized cognitive patterns summary
+7. Screenshot the dashboard → post it
 
 ---
-
-## Cursor Prompting Tips
-
-Build in this order and prompt Cursor one piece at a time:
-
-1. **First prompt:** "Build the manifest.json and background.js for a Chrome Manifest V3 extension that tracks tab open/close events, active time (using onActivated and onFocusChanged), and stores records in chrome.storage.local using this data model: [paste data model above]"
-
-2. **Second prompt:** "Now build content.js that tracks scroll depth and reports it to the background script via chrome.runtime.sendMessage"
-
-3. **Third prompt:** "Build dashboard.html and dashboard.js that reads from chrome.storage.local and displays: total tabs, avg active ratio, guilt tabs list, and hourly activity chart using Chart.js"
-
-4. **Fourth prompt:** "Add a Claude API integration to dashboard.js. Aggregate the last 7 days of data into this summary format [paste aggregation format], call the Anthropic API with this prompt [paste prompt], and display the result as a Weekly Brain Report card"
-
-5. **Fifth prompt:** "Add a settings page where the user can enter and save their Anthropic API key to chrome.storage.local"
