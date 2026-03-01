@@ -665,6 +665,12 @@ function showReport(text) {
   document.getElementById("btn-regenerate").style.display = "inline-block";
 }
 
+function showInsight(text) {
+  const el = document.getElementById("insight-text");
+  el.textContent = text;
+  el.classList.add("has-insight");
+}
+
 function showReportError(msg) {
   const el = document.getElementById("report-content");
   el.className   = "report-placeholder";
@@ -687,7 +693,10 @@ Write a 3-4 paragraph personal cognitive patterns report. Include:
 4. One specific, actionable behavioral insight
 
 Be warm, specific, and use exact numbers from the data. Avoid generic advice.
-Write as if you're a thoughtful analyst who genuinely finds their patterns interesting.`;
+Write as if you're a thoughtful analyst who genuinely finds their patterns interesting.
+
+After the report, add one final line in exactly this format (no extra punctuation before INSIGHT:):
+INSIGHT: [one specific, actionable sentence the user can act on this week]`;
 
   const res = await fetch(CLAUDE_API_URL, {
     method:  "POST",
@@ -710,7 +719,13 @@ Write as if you're a thoughtful analyst who genuinely finds their patterns inter
   }
 
   const data = await res.json();
-  return data.content[0].text;
+  const full  = data.content[0].text;
+
+  const insightMatch = full.match(/^INSIGHT:\s*(.+)$/m);
+  const insight      = insightMatch ? insightMatch[1].trim() : null;
+  const report       = full.replace(/^INSIGHT:.*$/m, "").trim();
+
+  return { report, insight };
 }
 
 async function generateReport() {
@@ -733,9 +748,10 @@ async function generateReport() {
   setReportLoading(true);
 
   try {
-    const summary = buildWeeklySummary(recent);
-    const report  = await fetchClaudeReport(apiKey, summary);
+    const summary          = buildWeeklySummary(recent);
+    const { report, insight } = await fetchClaudeReport(apiKey, summary);
     showReport(report);
+    if (insight) showInsight(insight);
   } catch (err) {
     showReportError(err.message);
   } finally {
@@ -873,7 +889,8 @@ async function closeGuiltTabs() {
 
   await chrome.tabs.remove(tabIds);
   closeGuiltCleaner();
-  initDashboard();
+  // Wait for background onRemoved handlers to finish saving before refreshing
+  setTimeout(initDashboard, 300);
 }
 
 function closeGuiltCleaner() {

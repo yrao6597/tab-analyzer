@@ -531,6 +531,36 @@ body {
 }
 .stat-card.clickable:hover .stat-hint { opacity: 1; }
 
+/* ── Behavioral insight callout ── */
+.insight-callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.insight-callout-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.insight-callout-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.insight-callout-text.has-insight {
+  color: var(--text-primary);
+  font-style: normal;
+}
+
 /* ── Detail modal ── */
 .detail-modal {
   width: 560px;
