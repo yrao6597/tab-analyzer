@@ -162,10 +162,6 @@ body {
   transition: background 0.2s, border-color 0.2s;
 }
 
-.stat-card.hero {
-  border-color: var(--accent);
-  background: var(--surface-alt);
-}
 
 .stat-value {
   font-size: 32px;
@@ -176,7 +172,6 @@ body {
   margin-bottom: 6px;
 }
 
-.stat-card.hero .stat-value { color: var(--accent-light); }
 
 .stat-label {
   font-size: 12px;
@@ -522,6 +517,7 @@ body {
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
 .stat-card.clickable:hover {
+  background: rgba(99,102,241,0.08);
   border-color: var(--accent);
   transform: translateY(-1px);
 }
@@ -589,7 +585,7 @@ body {
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.detail-tab:hover { border-color: var(--accent); color: var(--text-secondary); }
+.detail-tab:hover:not(.active) { background: var(--card-hover, rgba(99,102,241,0.12)); border-color: var(--accent); color: var(--text-primary); }
 .detail-tab.active {
   background: var(--accent);
   border-color: var(--accent);
