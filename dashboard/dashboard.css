@@ -603,7 +603,7 @@ body.zen .guilt-list:hover .guilt-item:hover { box-shadow: 0 0 0 1px #D4A896 ins
   gap: 12px;
 }
 .insight-callout-label {
-  font-size: 11px;
+  font-size: 22px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -615,10 +615,14 @@ body.zen .guilt-list:hover .guilt-item:hover { box-shadow: 0 0 0 1px #D4A896 ins
   font-size: 14px;
   color: var(--text-muted);
   font-style: italic;
+  margin-left: auto;
+  text-align: right;
 }
 .insight-callout-text.has-insight {
   color: var(--text-primary);
   font-style: normal;
+  margin-left: 0;
+  text-align: left;
 }
 
 
@@ -1164,6 +1168,29 @@ body.zen .guilt-list:hover .guilt-item:hover { box-shadow: 0 0 0 1px #D4A896 ins
 .trend-no-data { color: var(--text-faint); }
 
 
+/* ── Page load animations ── */
+
+@keyframes dash-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stats-row .stat-card:nth-child(1) { animation: dash-enter 0.45s ease-out both 0.04s; }
+.stats-row .stat-card:nth-child(2) { animation: dash-enter 0.45s ease-out both 0.11s; }
+.stats-row .stat-card:nth-child(3) { animation: dash-enter 0.45s ease-out both 0.18s; }
+.stats-row .stat-card:nth-child(4) { animation: dash-enter 0.45s ease-out both 0.25s; }
+
+.insight-callout                   { animation: dash-enter 0.45s ease-out both 0.30s; }
+
+.col-left  > .card:nth-child(1)   { animation: dash-enter 0.45s ease-out both 0.35s; }
+.col-left  > .card:nth-child(2)   { animation: dash-enter 0.45s ease-out both 0.42s; }
+.col-left  > .card:nth-child(3)   { animation: dash-enter 0.45s ease-out both 0.49s; }
+
+.col-right > .card:nth-child(1)   { animation: dash-enter 0.45s ease-out both 0.38s; }
+.col-right > .card:nth-child(2)   { animation: dash-enter 0.45s ease-out both 0.45s; }
+.col-right > .card:nth-child(3)   { animation: dash-enter 0.45s ease-out both 0.52s; }
+
+
 /* ═══════════════════════════════════════════════════════════════════════════
    ZEN MODE
    body.zen overrides — warm, earthy, gently animated, typographically softer
@@ -1284,9 +1311,20 @@ body.zen .modal {
 }
 
 /* ── Stat values — gentle fade-in on render ── */
-body.zen .stat-card {
-  animation: zen-fade-in 0.5s ease both;
-}
+body.zen .stats-row .stat-card:nth-child(1) { animation: zen-fade-in 0.6s ease both 0.04s; }
+body.zen .stats-row .stat-card:nth-child(2) { animation: zen-fade-in 0.6s ease both 0.11s; }
+body.zen .stats-row .stat-card:nth-child(3) { animation: zen-fade-in 0.6s ease both 0.18s; }
+body.zen .stats-row .stat-card:nth-child(4) { animation: zen-fade-in 0.6s ease both 0.25s; }
+
+body.zen .insight-callout                   { animation: zen-fade-in 0.6s ease both 0.30s; }
+
+body.zen .col-left  > .card:nth-child(1)   { animation: zen-fade-in 0.6s ease both 0.35s; }
+body.zen .col-left  > .card:nth-child(2)   { animation: zen-fade-in 0.6s ease both 0.42s; }
+body.zen .col-left  > .card:nth-child(3)   { animation: zen-fade-in 0.6s ease both 0.49s; }
+
+body.zen .col-right > .card:nth-child(1)   { animation: zen-fade-in 0.6s ease both 0.38s; }
+body.zen .col-right > .card:nth-child(2)   { animation: zen-fade-in 0.6s ease both 0.45s; }
+body.zen .col-right > .card:nth-child(3)   { animation: zen-fade-in 0.6s ease both 0.52s; }
 
 body.zen .stat-value {
   animation: zen-fade-in 0.7s ease both;
