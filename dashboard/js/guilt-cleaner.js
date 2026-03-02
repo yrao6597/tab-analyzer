@@ -18,6 +18,7 @@ async function openGuiltCleaner() {
     .map(t => ({
       tabId:       t.id,
       url:         t.url,
+      title:       t.title || "",
       domain:      new URL(t.url).hostname.replace(/^www\./, ""),
       activeRatio: ratioByUrl[t.url],
     }));
@@ -52,6 +53,53 @@ function updateGuiltCleanerPreview(threshold) {
 
   document.getElementById("guilt-top-domains").textContent =
     top3 ? `Top categories: ${top3}` : "";
+
+  // Refresh the list if it's currently open
+  const listEl = document.getElementById("guilt-tab-list");
+  if (listEl.style.display !== "none") renderGuiltTabList();
+}
+
+function renderGuiltTabList() {
+  const threshold  = parseInt(document.getElementById("guilt-slider").value) / 100;
+  const qualifying = guiltCandidates
+    .filter(c => c.activeRatio < threshold)
+    .sort((a, b) => b.activeRatio - a.activeRatio); // highest → lowest engagement
+
+  const listEl = document.getElementById("guilt-tab-list");
+
+  if (qualifying.length === 0) {
+    listEl.innerHTML = `<div class="guilt-tab-list-empty">No tabs qualify at this threshold.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = qualifying.map(c => {
+    const { emoji } = categorizeDomain(c.domain);
+    const title     = c.title || c.domain;
+    return `
+      <div class="guilt-tab-list-item">
+        <span class="guilt-tab-list-emoji">${emoji}</span>
+        <div class="guilt-tab-list-info">
+          <div class="guilt-tab-list-title" title="${c.url}">${title}</div>
+          <div class="guilt-tab-list-domain">${c.domain}</div>
+        </div>
+        <span class="guilt-badge red">${Math.round(c.activeRatio * 100)}%</span>
+      </div>`;
+  }).join("");
+}
+
+function toggleGuiltTabList() {
+  const listEl = document.getElementById("guilt-tab-list");
+  const btnEl  = document.getElementById("btn-view-guilt-tabs");
+  const isOpen = listEl.style.display !== "none";
+
+  if (isOpen) {
+    listEl.style.display = "none";
+    btnEl.textContent    = "👁 View Guilt Tabs";
+  } else {
+    listEl.style.display = "block";
+    btnEl.textContent    = "👁 Hide Guilt Tabs";
+    renderGuiltTabList();
+  }
 }
 
 async function closeGuiltTabs() {
@@ -68,4 +116,6 @@ async function closeGuiltTabs() {
 
 function closeGuiltCleaner() {
   document.getElementById("guilt-cleaner-modal").style.display = "none";
+  document.getElementById("guilt-tab-list").style.display      = "none";
+  document.getElementById("btn-view-guilt-tabs").textContent   = "👁 View Guilt Tabs";
 }

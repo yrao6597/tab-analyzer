@@ -211,6 +211,7 @@ document.getElementById("guilt-cleaner-modal").addEventListener("click", e => {
 document.getElementById("guilt-slider").addEventListener("input", e => {
   updateGuiltCleanerPreview(parseInt(e.target.value));
 });
+document.getElementById("btn-view-guilt-tabs").addEventListener("click", toggleGuiltTabList);
 document.getElementById("btn-close-guilt-tabs").addEventListener("click", closeGuiltTabs);
 
 // Settings modal

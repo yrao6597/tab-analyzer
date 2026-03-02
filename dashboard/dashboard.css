@@ -807,6 +807,70 @@ body {
   font-size: 14px;
 }
 
+.btn-secondary {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent-light);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.16);
+}
+
+.guilt-tab-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-alt);
+}
+
+.guilt-tab-list-empty {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.guilt-tab-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.guilt-tab-list-item:last-child { border-bottom: none; }
+
+.guilt-tab-list-emoji {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.guilt-tab-list-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.guilt-tab-list-title {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guilt-tab-list-domain {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
 /* ── Drag-and-drop widget rearrangement ──────────────────────────────────── */
 
 .drag-handle {
