@@ -24,24 +24,28 @@
 
     <!-- Stats row -->
     <section class="stats-row">
-      <div class="stat-card clickable" id="card-total-tabs">
+      <div class="stat-card clickable" id="card-total-tabs" data-id="stat-tabs">
+        <span class="drag-handle" title="Drag to rearrange">⠿</span>
         <div class="stat-value" id="stat-total-tabs">—</div>
         <div class="stat-label">Tabs opened (7 days)</div>
         <div class="stat-hint">Click to explore ↗</div>
       </div>
-      <div class="stat-card hero clickable" id="card-active-ratio">
+      <div class="stat-card hero clickable" id="card-active-ratio" data-id="stat-ratio">
+        <span class="drag-handle" title="Drag to rearrange">⠿</span>
         <div class="stat-value" id="stat-active-ratio">—</div>
         <div class="stat-label">Avg active ratio</div>
         <div class="stat-sub">time focused / time open</div>
         <div class="stat-hint">Click to explore ↗</div>
       </div>
-      <div class="stat-card clickable" id="card-guilt-count">
+      <div class="stat-card clickable" id="card-guilt-count" data-id="stat-guilt">
+        <span class="drag-handle" title="Drag to rearrange">⠿</span>
         <div class="stat-value" id="stat-guilt-count">—</div>
         <div class="stat-label">Guilt tabs</div>
         <div class="stat-sub">open &gt;5min, active &lt;10%</div>
         <div class="stat-hint">Click to explore ↗</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-id="stat-domain">
+        <span class="drag-handle" title="Drag to rearrange">⠿</span>
         <div class="stat-value" id="stat-top-domain">—</div>
         <div class="stat-label">Most visited domain</div>
       </div>
@@ -59,8 +63,9 @@
       <div class="col-left">
 
         <!-- Guilt tabs -->
-        <section class="card">
+        <section class="card" data-id="guilt">
           <div class="card-title-row">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
             <h2 class="card-title">Guilt Tab Hall of Shame</h2>
             <div class="info-btn" tabindex="0">
               ?
@@ -80,14 +85,18 @@
         </section>
 
         <!-- Top domains -->
-        <section class="card">
-          <h2 class="card-title">Top Domains</h2>
+        <section class="card" data-id="domains">
+          <div class="card-title-row">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
+            <h2 class="card-title">Top Domains</h2>
+          </div>
           <div id="domain-list" class="domain-list"></div>
         </section>
 
         <!-- Top categories -->
-        <section class="card">
+        <section class="card" data-id="categories">
           <div class="card-title-row">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
             <h2 class="card-title">Browsing Categories</h2>
             <div class="info-btn" tabindex="0">
               ?
@@ -107,8 +116,9 @@
       <div class="col-right">
 
         <!-- Hourly chart -->
-        <section class="card">
+        <section class="card" data-id="hourly">
           <div class="card-title-row">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
             <h2 class="card-title">Hourly Tab Activity</h2>
             <div class="info-btn" tabindex="0">
               ?
@@ -124,8 +134,9 @@
         </section>
 
         <!-- Claude report -->
-        <section class="card" id="report-card">
+        <section class="card" id="report-card" data-id="report">
           <div class="report-header">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
             <h2 class="card-title">Weekly Brain Report</h2>
             <button class="btn-ghost btn-sm" id="btn-regenerate" style="display:none">Regenerate</button>
           </div>
@@ -191,6 +202,7 @@
   </div>
 
   <script src="js/vendor/chart.min.js"></script>
+  <script src="js/vendor/sortable.min.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/colors.js"></script>
   <script src="js/utils.js"></script>
@@ -203,5 +215,6 @@
   <script src="js/guilt-cleaner.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/drag.js"></script>
 </body>
 </html>

@@ -159,6 +159,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
+  position: relative;
   transition: background 0.2s, border-color 0.2s;
 }
 
@@ -804,4 +805,55 @@ body {
   width: 100%;
   padding: 12px;
   font-size: 14px;
+}
+
+/* ── Drag-and-drop widget rearrangement ──────────────────────────────────── */
+
+.drag-handle {
+  cursor: grab;
+  color: var(--text-faint);
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 6px 0 0;
+  user-select: none;
+  opacity: 0.4;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--text-muted);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Stat card handle sits at the top-right corner */
+.stat-card .drag-handle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0;
+  font-size: 16px;
+}
+
+/* Placeholder slot shown while dragging */
+.card-ghost {
+  opacity: 0.35;
+  border: 2px dashed var(--accent) !important;
+  background: transparent !important;
+}
+
+/* The card being held */
+.card-chosen {
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
+}
+
+/* The floating clone while dragging */
+.card-dragging {
+  opacity: 0.95;
+  transform: rotate(1deg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
