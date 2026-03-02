@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>Tab Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
@@ -13,6 +15,7 @@
         <div class="title-row">
           <h1>Tab Analyzer</h1>
           <button class="btn-theme" id="btn-theme">☀ Light</button>
+          <button class="btn-zen" id="btn-zen" title="Zen mode">🌿</button>
         </div>
         <span class="subtitle">Your attention, honestly.</span>
       </div>
@@ -132,6 +135,16 @@
           </div>
           <p class="card-sub">When you open tabs throughout the day</p>
           <canvas id="hourly-chart" height="160"></canvas>
+        </section>
+
+        <!-- 7-Day Trend -->
+        <section class="card" data-id="trend">
+          <div class="card-title-row">
+            <span class="drag-handle" title="Drag to rearrange">⠿</span>
+            <h2 class="card-title">7-Day Trend</h2>
+          </div>
+          <p class="card-sub">How today compares to yesterday</p>
+          <div id="trend-table" class="trend-table"></div>
         </section>
 
         <!-- Claude report -->

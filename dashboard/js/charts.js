@@ -30,8 +30,12 @@ function drawBreakdownPie(el, labels, data, formatValue) {
   const canvas = document.createElement("canvas");
   wrapper.appendChild(canvas);
 
-  const isLight   = document.body.classList.contains("light");
-  const textColor = isLight ? PIE_TEXT_LIGHT : PIE_TEXT_DARK;
+  const isZen   = document.body.classList.contains("zen");
+  const isLight = document.body.classList.contains("light");
+
+  const colors    = isZen ? ZEN_PIE_COLORS : PIE_COLORS;
+  const textColor = isZen ? ZEN_PIE_TEXT   : (isLight ? PIE_TEXT_LIGHT : PIE_TEXT_DARK);
+  const border    = isZen ? ZEN_PIE_BORDER : (isLight ? PIE_BORDER_LIGHT : PIE_BORDER_DARK);
 
   return new Chart(canvas.getContext("2d"), {
     type: "doughnut",
@@ -39,9 +43,9 @@ function drawBreakdownPie(el, labels, data, formatValue) {
       labels: filtered.labels,
       datasets: [{
         data:            filtered.data,
-        backgroundColor: PIE_COLORS.slice(0, filtered.data.length),
+        backgroundColor: colors.slice(0, filtered.data.length),
         borderWidth:     2,
-        borderColor:     isLight ? PIE_BORDER_LIGHT : PIE_BORDER_DARK,
+        borderColor:     border,
       }],
     },
     options: {
@@ -51,7 +55,7 @@ function drawBreakdownPie(el, labels, data, formatValue) {
       plugins: {
         legend: {
           position: "right",
-          labels: { color: textColor, font: { size: 11 }, padding: 14, boxWidth: 12, maxWidth: 180 },
+          labels: { color: textColor, font: { size: 11, family: isZen ? "'Lora', Georgia, serif" : undefined }, padding: 14, boxWidth: 12, maxWidth: 180 },
         },
         tooltip: {
           position: "cursor",

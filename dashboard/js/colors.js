@@ -130,3 +130,32 @@ const BAR_GRID_LIGHT = "#e2e2ec";    // = LIGHT.border
 
 // Axis tick label color (same in both themes)
 const BAR_TICK_COLOR = "#6b6b7a";    // = textMuted
+
+
+// ── 6. Zen theme ──────────────────────────────────────────────────────────────
+// Used by charts and renderers when body.zen is active.
+
+// Earthy, muted categorical palette for pie/doughnut charts
+const ZEN_PIE_COLORS = [
+  "#8FAF8F",  // sage green
+  "#C4A8A8",  // dusty mauve
+  "#D4A896",  // soft terracotta
+  "#C8B87A",  // warm gold
+  "#A8C0B5",  // seafoam
+  "#B8A8C5",  // soft lavender
+  "#D4B896",  // sandy beige
+  "#9AB5A8",  // muted teal
+  "#C8A8B5",  // blush rose
+  "#B5C5A8",  // pale sage
+  "#D4C5A8",  // pale gold
+  "#A8B8C5",  // dusty blue
+];
+
+const ZEN_PIE_TEXT   = "#5C5048";   // warm dark brown for legend labels
+const ZEN_PIE_BORDER = "#FBF8F3";   // matches zen --surface
+
+// Bar chart (hourly) colors in zen mode
+const ZEN_BAR_ACTIVE = "#8FAF8F";   // sage green — filled bars
+const ZEN_BAR_EMPTY  = "#EDE8DF";   // warm beige — empty bars
+const ZEN_BAR_GRID   = "#E5DDD5";   // slightly darker grid lines
+const ZEN_BAR_TICK   = "#8A7E76";   // warm muted brown ticks

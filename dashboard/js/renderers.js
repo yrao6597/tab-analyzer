@@ -116,9 +116,12 @@ function renderHourlyChart(visits) {
     return h < 12 ? `${h}a` : `${h - 12}p`;
   });
 
+  const isZen         = document.body.classList.contains("zen");
   const isLight       = document.body.classList.contains("light");
-  const emptyBarColor = isLight ? BAR_EMPTY_LIGHT : BAR_EMPTY_DARK;
-  const gridColor     = isLight ? BAR_GRID_LIGHT  : BAR_GRID_DARK;
+  const activeColor   = isZen ? ZEN_BAR_ACTIVE : BAR_ACTIVE_COLOR;
+  const emptyBarColor = isZen ? ZEN_BAR_EMPTY  : (isLight ? BAR_EMPTY_LIGHT : BAR_EMPTY_DARK);
+  const gridColor     = isZen ? ZEN_BAR_GRID   : (isLight ? BAR_GRID_LIGHT  : BAR_GRID_DARK);
+  const tickColor     = isZen ? ZEN_BAR_TICK   : BAR_TICK_COLOR;
 
   if (hourlyChartInstance) {
     hourlyChartInstance.destroy();
@@ -133,7 +136,7 @@ function renderHourlyChart(visits) {
         labels,
         datasets: [{
           data:            counts,
-          backgroundColor: counts.map(c => c > 0 ? BAR_ACTIVE_COLOR : emptyBarColor),
+          backgroundColor: counts.map(c => c > 0 ? activeColor : emptyBarColor),
           borderRadius:    4,
           borderSkipped:   false,
         }],
@@ -145,8 +148,8 @@ function renderHourlyChart(visits) {
           tooltip: { callbacks: { label: ctx => `${ctx.raw} tab${ctx.raw !== 1 ? "s" : ""}` } },
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: BAR_TICK_COLOR, font: { size: 10 } } },
-          y: { grid: { color: gridColor }, ticks: { color: BAR_TICK_COLOR, precision: 0 } },
+          x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10, family: isZen ? "'Lora', Georgia, serif" : undefined } } },
+          y: { grid: { color: gridColor }, ticks: { color: tickColor, precision: 0 } },
         },
       },
     }
@@ -410,5 +413,183 @@ function renderGuiltBreakdownByDomain(visits) {
   }).join("");
 
   return `<div class="breakdown-list">${rows}</div>`;
+}
+
+// ── 7-Day Trend card ──────────────────────────────────────────────────────────
+
+let trendPage = 0;
+
+// Returns a human-readable comparison phrase with color class.
+// type: "ratio" (up = good), "guilt" (up = bad), "neutral"
+function trendDeltaHtml(delta, type) {
+  if (delta === null) {
+    return `<span class="trend-insight-delta trend-delta-neutral">no data from yesterday</span>`;
+  }
+  if (delta === 0) {
+    return `<span class="trend-insight-delta trend-delta-neutral">same as yesterday</span>`;
+  }
+
+  const abs  = Math.abs(delta);
+  let text, cls;
+
+  if (type === "ratio") {
+    const dir = delta > 0 ? "up" : "down";
+    cls  = delta > 0 ? "good" : "bad";
+    text = `${dir} ${abs}% from yesterday`;
+  } else {
+    const word = delta > 0 ? "more" : "fewer";
+    cls  = (type === "guilt") ? (delta > 0 ? "bad" : "good") : "neutral";
+    text = `${abs} ${word} than yesterday`;
+  }
+
+  return `<span class="trend-insight-delta trend-delta-${cls}">${text}</span>`;
+}
+
+// Inline delta used in the weekly table rows.
+function deltaHtml(delta, type) {
+  if (delta === null || delta === 0) return "";
+  const positive = delta > 0;
+  const sign     = positive ? "+" : "";
+  const suffix   = type === "ratio" ? "%" : "";
+
+  let cls;
+  if (type === "ratio")      cls = positive ? "good" : "bad";
+  else if (type === "guilt") cls = positive ? "bad"  : "good";
+  else                       cls = "neutral";
+
+  return ` <span class="trend-delta trend-delta-${cls}">${sign}${delta}${suffix}</span>`;
+}
+
+function renderTrendCard(visits) {
+  const el       = document.getElementById("trend-table");
+  const days     = last7Days();
+  const todayKey = dayKey(new Date());
+
+  // Accumulate per-day stats
+  const dayStats = {};
+  for (const d of days) dayStats[d.key] = { count: 0, ratioSum: 0, guilt: 0 };
+
+  for (const v of visits) {
+    const key = dayKey(new Date(v.opened_at));
+    if (key in dayStats) {
+      dayStats[key].count++;
+      dayStats[key].ratioSum += ratio(v);
+      if (isGuiltTab(v)) dayStats[key].guilt++;
+    }
+  }
+
+  // Today and yesterday stats
+  const todayIdx = days.findIndex(d => d.key === todayKey);
+  const ts       = todayIdx >= 0 ? dayStats[days[todayIdx].key] : null;
+  const ys       = todayIdx > 0  ? dayStats[days[todayIdx - 1].key] : null;
+
+  const todayCount = ts ? ts.count : 0;
+  const todayRatio = ts && ts.count > 0 ? ts.ratioSum / ts.count : null;
+  const todayGuilt = ts ? ts.guilt : 0;
+
+  const yCount = ys && ys.count > 0 ? ys.count : null;
+  const yRatio = ys && ys.count > 0 ? ys.ratioSum / ys.count : null;
+  const yGuilt = ys && ys.count > 0 ? ys.guilt  : null;
+
+  const tabsDelta  = yCount !== null ? todayCount - yCount : null;
+  const ratioDelta = (todayRatio !== null && yRatio !== null)
+    ? Math.round(todayRatio * 100) - Math.round(yRatio * 100) : null;
+  const guiltDelta = yGuilt !== null ? todayGuilt - yGuilt : null;
+
+  const tabsLabel  = `${todayCount} tab${todayCount !== 1 ? "s" : ""} opened today`;
+  const ratioLabel = todayRatio !== null ? `${pct(todayRatio)} avg active ratio` : "No browsing data today";
+  const guiltLabel = `${todayGuilt} guilt tab${todayGuilt !== 1 ? "s" : ""} today`;
+
+  function insightLine(label, delta, type) {
+    return `
+      <div class="trend-insight-line">
+        <span class="trend-insight-main">${label}</span>
+        ${trendDeltaHtml(delta, type)}
+      </div>`;
+  }
+
+  const page0Html = `
+    <div class="trend-insights">
+      ${insightLine(tabsLabel,  tabsDelta,  "neutral")}
+      ${insightLine(ratioLabel, ratioDelta, "ratio")}
+      ${insightLine(guiltLabel, guiltDelta, "guilt")}
+    </div>`;
+
+  // 7-day table (page 1)
+  const tableHeader = `
+    <div class="trend-header">
+      <div class="trend-day-col"></div>
+      <div class="trend-val-col">Tabs</div>
+      <div class="trend-val-col">Ratio</div>
+      <div class="trend-val-col">Guilt</div>
+    </div>`;
+
+  const tableRows = days.map((d, i) => {
+    const s       = dayStats[d.key];
+    const count   = s.count;
+    const avgRat  = count > 0 ? s.ratioSum / count : null;
+    const guilt   = s.guilt;
+    const isToday = d.key === todayKey;
+
+    let prev = null;
+    if (i > 0) {
+      const ps = dayStats[days[i - 1].key];
+      if (ps.count > 0) prev = { count: ps.count, avgRat: ps.ratioSum / ps.count, guilt: ps.guilt };
+    }
+
+    const tabsDlt  = (count > 0 && prev) ? count - prev.count : null;
+    const ratioDlt = (avgRat !== null && prev) ? Math.round(avgRat * 100) - Math.round(prev.avgRat * 100) : null;
+    const guiltDlt = (count > 0 && prev) ? guilt - prev.guilt : null;
+
+    const noData    = `<span class="trend-no-data">—</span>`;
+    const tabsCell  = count === 0 ? noData : `${count}${deltaHtml(tabsDlt, "neutral")}`;
+    const ratioCell = avgRat === null ? noData : `${pct(avgRat)}${deltaHtml(ratioDlt, "ratio")}`;
+    const guiltCell = count === 0 ? noData : `${guilt}${deltaHtml(guiltDlt, "guilt")}`;
+    const badge     = isToday ? ` <span class="trend-today-badge">today</span>` : "";
+
+    return `
+      <div class="trend-row${isToday ? " trend-row-today" : ""}">
+        <div class="trend-day-col">${d.label}${badge}</div>
+        <div class="trend-val-col">${tabsCell}</div>
+        <div class="trend-val-col">${ratioCell}</div>
+        <div class="trend-val-col">${guiltCell}</div>
+      </div>`;
+  }).join("");
+
+  const page1Html = `${tableHeader}${tableRows}`;
+
+  el.innerHTML = `
+    <div class="trend-pager">
+      <div class="trend-page${trendPage === 0 ? " trend-page-active" : ""}" data-page="0">${page0Html}</div>
+      <div class="trend-page${trendPage === 1 ? " trend-page-active" : ""}" data-page="1">${page1Html}</div>
+    </div>
+    <div class="trend-dots" id="trend-dots">
+      <span class="trend-dot${trendPage === 0 ? " active" : ""}" data-page="0" title="Today vs yesterday"></span>
+      <span class="trend-dot${trendPage === 1 ? " active" : ""}" data-page="1" title="7-day breakdown"></span>
+    </div>`;
+
+  document.getElementById("trend-dots").addEventListener("click", e => {
+    const dot = e.target.closest(".trend-dot");
+    if (!dot) return;
+    const next = parseInt(dot.dataset.page);
+    if (next === trendPage) return;
+
+    // Animate out current, in next
+    const pages = el.querySelectorAll(".trend-page");
+    const dir   = next > trendPage ? 1 : -1;
+    trendPage   = next;
+
+    pages.forEach((p, i) => {
+      p.classList.remove("trend-page-active", "trend-page-enter", "trend-page-exit-left", "trend-page-exit-right");
+      if (i === trendPage) {
+        p.classList.add("trend-page-enter-" + (dir > 0 ? "right" : "left"));
+        requestAnimationFrame(() => p.classList.add("trend-page-active"));
+      } else {
+        p.classList.add(dir > 0 ? "trend-page-exit-left" : "trend-page-exit-right");
+      }
+    });
+
+    el.querySelectorAll(".trend-dot").forEach((d, i) => d.classList.toggle("active", i === trendPage));
+  });
 }
 

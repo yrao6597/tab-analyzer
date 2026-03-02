@@ -48,6 +48,7 @@ function initDashboard() {
     renderDomainList(cachedVisits);
     renderCategoryList(cachedVisits);
     renderHourlyChart(cachedVisits);
+    renderTrendCard(cachedVisits);
 
     document.getElementById("api-key-input").value = storage.apiKey || "";
   });
