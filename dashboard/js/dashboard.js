@@ -220,6 +220,7 @@ document.getElementById("card-guilt-count").addEventListener("click", () => {
 });
 
 // Guilt Tab Cleaner
+document.getElementById("btn-guilt-clean").addEventListener("click", openGuiltCleaner);
 document.getElementById("guilt-cleaner-close").addEventListener("click", closeGuiltCleaner);
 document.getElementById("guilt-cleaner-modal").addEventListener("click", e => {
   if (e.target === document.getElementById("guilt-cleaner-modal")) closeGuiltCleaner();
