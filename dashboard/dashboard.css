@@ -1,11 +1,11 @@
 /* ── CSS Variables — dark mode (default) ── */
 :root {
-  --bg:               #0d0d0f;
-  --surface:          #17171f;
-  --surface-alt:      #13131e;
-  --surface-raised:   #1e1e28;
-  --border:           #1e1e28;
-  --border-subtle:    #2a2a35;
+  --bg:               #1c1c24;
+  --surface:          #24242e;
+  --surface-alt:      #20202a;
+  --surface-raised:   #2c2c38;
+  --border:           #2c2c38;
+  --border-subtle:    #363644;
   --text-primary:     #ffffff;
   --text-secondary:   #e2e2e6;
   --text-muted:       #6b6b7a;
@@ -246,6 +246,29 @@ body {
   font-size: 12px;
   color: var(--text-muted);
   margin-bottom: 16px;
+}
+
+/* Minimize button — pushed to the far right of the title row */
+.btn-minimize {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+.btn-minimize:hover { color: var(--text-primary); }
+
+/* Card body wrapper — animated collapse/expand */
+.card-body {
+  overflow: hidden;
+}
+.card-body-animated {
+  transition: height 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
 }
 
 /* ── Info button + tooltip ── */
@@ -498,7 +521,7 @@ body.zen .guilt-list:hover .guilt-item:hover { box-shadow: 0 0 0 1px #D4A896 ins
 .report-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
   margin-bottom: 12px;
 }
 
@@ -797,6 +820,25 @@ body.zen .guilt-list:hover .guilt-item:hover { box-shadow: 0 0 0 1px #D4A896 ins
   width: 100%;
   accent-color: var(--accent);
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-raised);
+  outline: none;
+}
+.guilt-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.guilt-slider::-webkit-slider-runnable-track {
+  background: var(--surface-raised);
+  height: 4px;
+  border-radius: 2px;
 }
 
 .guilt-cleaner-preview {

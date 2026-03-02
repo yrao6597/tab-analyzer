@@ -220,7 +220,6 @@ document.getElementById("card-guilt-count").addEventListener("click", () => {
 });
 
 // Guilt Tab Cleaner
-document.getElementById("btn-guilt-clean").addEventListener("click", openGuiltCleaner);
 document.getElementById("guilt-cleaner-close").addEventListener("click", closeGuiltCleaner);
 document.getElementById("guilt-cleaner-modal").addEventListener("click", e => {
   if (e.target === document.getElementById("guilt-cleaner-modal")) closeGuiltCleaner();
@@ -248,7 +247,62 @@ document.getElementById("btn-save-key").addEventListener("click", async () => {
   closeSettings();
 });
 
+// ── Minimize cards ────────────────────────────────────────────────────────────
+
+function initMinimize() {
+  const saved = JSON.parse(localStorage.getItem("minimized-cards") || "[]");
+
+  document.querySelectorAll(".btn-minimize").forEach(btn => {
+    const card     = btn.closest(".card");
+    const id       = card.dataset.id;
+    const titleRow = card.querySelector(".card-title-row, .report-header");
+
+    // Wrap all content after the title row in a single animatable div
+    const body = document.createElement("div");
+    body.className = "card-body";
+    while (titleRow.nextSibling) body.appendChild(titleRow.nextSibling);
+    card.appendChild(body);
+
+    // Apply initial minimized state instantly (no animation on load)
+    if (saved.includes(id)) {
+      body.style.height  = "0";
+      body.style.opacity = "0";
+      btn.textContent    = "+";
+    }
+
+    // Enable transitions after first paint so initial state has no animation
+    setTimeout(() => body.classList.add("card-body-animated"), 50);
+
+    btn.addEventListener("click", () => {
+      const collapsing = btn.textContent === "−";  // currently expanded → collapse
+      btn.textContent  = collapsing ? "+" : "−";
+
+      if (collapsing) {
+        // Lock explicit height so the transition has a from-value, then animate to 0
+        body.style.height  = body.scrollHeight + "px";
+        requestAnimationFrame(() => {
+          body.style.height  = "0";
+          body.style.opacity = "0";
+        });
+      } else {
+        // Animate to natural height, then release to auto so content can grow freely
+        body.style.height  = body.scrollHeight + "px";
+        body.style.opacity = "1";
+        body.addEventListener("transitionend", () => {
+          body.style.height = "auto";
+        }, { once: true });
+      }
+
+      const mins = JSON.parse(localStorage.getItem("minimized-cards") || "[]");
+      if (collapsing) { if (!mins.includes(id)) mins.push(id); }
+      else            { const i = mins.indexOf(id); if (i > -1) mins.splice(i, 1); }
+      localStorage.setItem("minimized-cards", JSON.stringify(mins));
+    });
+  });
+}
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 initTheme();
+initMinimize();
 initDashboard();
